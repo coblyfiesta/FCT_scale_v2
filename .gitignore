@@ -1,0 +1,7 @@
++caffe/*
+*.mexa64
+*.mexglx
+*.caffemodel
+*.mat
+*~
+*.swp
