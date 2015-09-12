@@ -12,21 +12,26 @@ scale_param.scale_model_max_area = 512;      % the maximum size of scale example
 
 
 close all;
-res = ['select_roi_cn' num2str(ch_num) '/' set_name];
-if ~isdir(res)
-    mkdir(res);
-end
+
 track_res = ['benchmark_res/'];
 if ~isdir(track_res)
     mkdir(track_res);
 end
+sample_res = ['sample_res/' path_name '/' set_name '/'];
+if ~isdir(sample_res)
+    mkdir(sample_res);
+end
 
-data_path = ['~/Downloads/PF_CNN_SVM/data/' set_name '/'];
-GT = load([data_path 'groundtruth_rect.txt']);
-dia = (GT(1, 3)^2+GT(1, 4)^2)^0.5;
+data_path = ['~/Downloads/imagedata++/' path_name '/' set_name '/'];
+gt_path = ['~/Downloads/alov300++_rectangleAnnotation_full/' path_name '/' set_name '.ann'];
+GT = load(gt_path);
+
+init_box = [GT(1, 4:5), GT(1, 8:9)];
+init_location = [init_box(1:2), init_box(3:4)-init_box(1:2)];
+dia = (init_location(1, 3)^2+init_location(1, 4)^2)^0.5;
 
 % scale = gt(1, 3)/ gt (1, 4);
-scale = [dia/GT(1, 3), dia/GT(1, 4)];
+scale = [dia/init_location(1, 3), dia/init_location(1, 4)];
 l1_off = [0,0];
 l2_off = [0,0];
 s1 = pf_param.roi_scale*[scale(1),scale(2)];
@@ -57,7 +62,7 @@ roi_size = 361;%368; %380;
 mean_pix = [103.939, 116.779, 123.68]; 
 
 % fnum = 20;
-location = GT(im1_id,:);
+location = init_location;
 % location = GT(1,:);
 pf_param.ratio = location(3)/pf_param.p_sz;
 pf_param.affsig(3) = pf_param.affsig(3)*pf_param.ratio;

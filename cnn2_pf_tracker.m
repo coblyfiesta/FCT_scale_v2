@@ -1,10 +1,10 @@
-function  cnn2_pf_tracker(set_name, im1_id, ch_num)
+function  cnn2_pf_tracker(path_name, set_name, im1_id, ch_num)
 cleanupObj = onCleanup(@cleanupFun);
 set_tracker_param;
 % caffe('presolve_gnet');
 % caffe('presolve_lnet');
 %% read images
-im1_name = sprintf([data_path 'img/%04d.jpg'], im1_id);
+im1_name = sprintf([data_path '%08d.jpg'], im1_id);
 im1 = double(imread(im1_name));
 if size(im1,3)~=3
     im1(:,:,2) = im1(:,:,1);
@@ -33,7 +33,7 @@ fsolver.net.forward_prefilled();
 % fea1 = caffe('forward', {single(roi1)});
 lfea1 = feature_blob4.get_data();
 fea_sz = size(lfea1);
-% ch_num = size(fea1,3);
+% ch_num = size(fea1,3);set_name
 % ch_num = 128;
 % fea_sz = size(fea1{1});
 % lfea1 = fea1{1};
@@ -145,11 +145,11 @@ scale_param = init_scale_estimator(im1, location, scale_param);
 
 
 t=0;
-fnum = size(GT,1);
+fnum = length(dir([data_path '*jpg']));
 positions = zeros(fnum, 4);
 close all
 
-
+fnum = 3;
 for im2_id = im1_id:fnum
     tic;
     lsolver.net.set_net_phase('test');
@@ -157,7 +157,7 @@ for im2_id = im1_id:fnum
     location_last = location;
     tic
     fprintf('Processing Img: %d/%d \n', im2_id, fnum);
-    im2_name = sprintf([data_path 'img/%04d.jpg'], im2_id);
+    im2_name = sprintf([data_path '%08d.jpg'], im2_id);
     im2 = double(imread(im2_name));
     if size(im2,3)~=3
         im2(:,:,2) = im2(:,:,1);
@@ -363,6 +363,7 @@ for im2_id = im1_id:fnum
     end
     
     drawnow
+    saveas(im_handle, sprintf([sample_res '%08d.png'], im2_id));
 %       location = GT(im2_id, :);
     
     
@@ -374,7 +375,7 @@ results{1}.annoBegin = 1;
 resutls{1}.len = fnum;
 
 
-save([track_res  lower(set_name) '_fct_scale_v2-2.mat'], 'results');
+save([track_res path_name '-' set_name '_fct_scale_v2-2.mat'], 'results');
 fprintf('Speed: %d fps\n', fnum/t);
 end
 

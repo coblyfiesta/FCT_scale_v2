@@ -5,3 +5,5 @@
 *.mat
 *~
 *.swp
+sample_res/*
+benchmark_res/*
